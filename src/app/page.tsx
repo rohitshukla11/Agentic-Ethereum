@@ -15,7 +15,8 @@ import {
   Network,
   Radio,
   Zap,
-  Wallet
+  Wallet,
+  Hexagon
 } from 'lucide-react';
 
 const AIBot = () => {
@@ -24,7 +25,7 @@ const AIBot = () => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'NEXUS-7 ONLINE. AWAITING YOUR COMMAND.' }
+    { role: 'assistant', content: 'Ware AI ONLINE. AWAITING YOUR COMMAND.' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -158,9 +159,48 @@ const AIBot = () => {
     }
   };
 
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (!pageLoaded || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chars = "IPhone AirPods MacBook Air MacBook Pro".split("");
+    const columns = Math.floor(canvas.width / 20);
+    const drops = Array(columns).fill(1);
+
+    const draw = () => {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#0ff";
+      ctx.font = "15px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * 20, drops[i] * 20);
+        if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    };
+
+    const matrixInterval = setInterval(draw, 33);
+
+    return () => clearInterval(matrixInterval);
+  }, [pageLoaded]);
+
   if (!pageLoaded) {
     return (
-      <div className="h-screen bg-black flex flex-col items-center justify-center space-y-4 overflow-hidden">
+      <div className="h-screen bg-black flex flex-col items-center justify-center space-y-4 overflow-hidden"
+      >
         <div className="relative">
           <div className="absolute inset-0 animate-spin-slow">
             {[...Array(6)].map((_, i) => (
@@ -183,106 +223,61 @@ const AIBot = () => {
   }
 
   return (
-    <div className="fixed inset-0 bg-[#080C24] font-mono overflow-hidden perspective-1000">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0" style={{ perspective: '1000px' }}>
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={`grid-${i}`}
-              className="absolute w-full h-px bg-cyan-500/10 "
-              style={{
-                top: `${i * 5}%`,
-                transform: `rotateX(60deg) translateZ(${Math.sin(i / 10) * 50}px)`,
-              }}
-            />
-          ))}
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={`grid-vert-${i}`}
-              className="absolute h-full w-px bg-cyan-500/10"
-              style={{
-                left: `${i * 5}%`,
-                transform: `rotateY(60deg) translateZ(${Math.cos(i / 10) * 50}px)`,
-              }}
-            />
-          ))}
-        </div>
+    <div className="fixed inset-0 bg-[#000510] font-mono overflow-hidden">
+      <canvas ref={canvasRef} className="fixed inset-0 opacity-20" />
 
-        <div className="absolute inset-0 overflow-hidden opacity-20">
-          {[...Array(10)].map((_, i) => (
-            <div
-              key={`rain-${i}`}
-              className="absolute top-0 text-cyan-500 text-xs whitespace-nowrap"
-              style={{
-                left: `${i * 10}%`,
-                animation: `digitalRain ${5 + Math.random() * 5}s infinite linear`,
-                animationDelay: `${-Math.random() * 5}s`,
-              }}
-            >
-              {[...Array(20)].map(() => String.fromCharCode(0x30A0 + Math.random() * 96)).join('')}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#00f2fe_0%,transparent_50%)]" />
-        <div className="absolute inset-0 bg-grid-pattern opacity-90" />
-
-        {[...Array(10)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-24 h-24 transform rotate-45 border border-cyan-500/20"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animation: `float ${5 + Math.random() * 5}s infinite ease-in-out`,
-              animationDelay: `${-Math.random() * 5}s`
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="relative h-full max-w-7xl mx-auto p-4">
-        <div className="flex justify-between items-center mb-6 transform hover:scale-102 transition-transform">
-          <div className="relative">
-            <div className="text-cyan-400 text-xl font-bold">
-              Ware AI
-              <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-cyan-500 to-transparent" />
-            </div>
+      <div className="relative h-full max-w-7xl mx-auto p-4 z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-900/10 to-cyan-900/20" />
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center justify-center opacity-30">
+            {[...Array(6)].map((_, i) => (
+              <Hexagon
+                key={i}
+                className="absolute text-cyan-500"
+                style={{
+                  transform: `rotate(${i * 60}deg) translateX(2rem)`,
+                  opacity: 0.2
+                }}
+              />
+            ))}
           </div>
-          {isConnected}
-          <button
-            onClick={isConnected ? () => disconnect() : handleConnect}
-            className="relative group px-6 py-3 rounded-xl bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition-all overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 transform -skew-x-12 group-hover:skew-x-12 transition-transform" />
-            <div className="relative flex items-center gap-2">
-              <Wallet className="w-5 h-5" />
-              <span>{isConnected ? `Connected: ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Connect Wallet'}</span>
+
+          <div className="flex justify-between items-center relative z-10">
+            <div className="text-cyan-400 text-2xl font-bold tracking-wider">
+              WARE AI
+              <div className="h-0.5 bg-gradient-to-r from-cyan-500 via-cyan-400 to-transparent" />
             </div>
-          </button>
+
+            <button
+              onClick={isConnected ? () => disconnect() : handleConnect}
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-900/50 to-blue-900/50 text-cyan-400 hover:from-cyan-800/50 hover:to-blue-800/50 transition-all group"
+            >
+              <div className="flex items-center gap-2">
+                <Wallet className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                <span>{isConnected ? `${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Connect'}</span>
+              </div>
+            </button>
+          </div>
         </div>
 
+        {/* Status indicators with animated borders */}
         <div className="grid grid-cols-5 gap-4 mb-6">
           {[
-            { label: 'QUANTUM CORE', value: '99%', icon: Cpu, color: 'cyan' },
-            { label: 'NEURAL SYNC', value: '85%', icon: Network, color: 'cyan' },
-            { label: 'DATA STREAM', value: '92%', icon: Radio, color: 'cyan' },
-            { label: 'SECURITY', value: '100%', icon: Shield, color: 'cyan' },
-            { label: 'POWER', value: '95%', icon: Zap, color: 'cyan' }
-          ].map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="relative group">
-              <div className="absolute inset-0 bg-cyan-500/5 rounded-xl transform group-hover:scale-105 transition-transform" />
-              <div className="relative bg-gray-900/40 rounded-xl p-4 border border-cyan-500/30 backdrop-blur-md hover:shadow-lg hover:shadow-cyan-500/20 transition-all">
-                <div className="flex items-center justify-between">
+            { label: 'iPhone 16', value: '99%', icon: Cpu },
+            { label: 'AirPods', value: '85%', icon: Network },
+            { label: 'MacBook Air', value: '92%', icon: Radio },
+            { label: 'MacBook Pro', value: '100%', icon: Shield },
+            { label: 'AirPods Pro', value: '95%', icon: Zap }
+          ].map(({ label, value, icon: Icon }) => (
+            <div key={label} className="relative group perspective">
+              <div className="relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 rounded-xl p-4 border border-cyan-500/30 transform transition-all hover:translate-z-10 hover:shadow-xl hover:shadow-cyan-500/20">
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-transparent to-cyan-500/10 animate-pulse" />
+                <div className="flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-2">
-                    <Icon className={`w-5 h-5 text-${color}-400`} />
+                    <Icon className="w-5 h-5 text-cyan-400" />
                     <span className="text-xs text-cyan-400">{label}</span>
                   </div>
-                  <div className="relative">
-                    <span className={`text-${color}-400 text-sm`}>{value}</span>
-                    <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-cyan-500/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform" />
-                  </div>
+                  <span className="text-cyan-400 text-sm font-bold">{value}</span>
                 </div>
               </div>
             </div>
@@ -295,7 +290,7 @@ const AIBot = () => {
           <div className="relative bg-gray-900/40 rounded-3xl border border-cyan-500/30 backdrop-blur-md overflow-hidden">
             <div
               ref={chatContainerRef}
-              className="min-h-[calc(100vh-18rem)] overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent"
+              className="min-h-[calc(100vh-18rem)] overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent overflow-x-hidden"
             >
               {messages.map((message, index) => (
                 <div
@@ -309,7 +304,7 @@ const AIBot = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transform -translate-x-full group-hover:translate-x-full transition-all duration-1000" />
                     <div className="flex items-start gap-3">
                       <div className={`
-                        relative w-8 h-8 rounded-full flex items-center justify-center
+                        relative w-8 h-8 rounded-full flex items-center justify-center                
                         ${message.role === 'assistant' ? 'bg-cyan-500/20' : 'bg-blue-500/20'}
                       `}>
                         {message.role === 'assistant' ? (
@@ -368,24 +363,6 @@ const AIBot = () => {
           </div>
         </div>
       </div>
-      <style jsx global>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes digitalRain {
-          from { transform: translateY(-100%); }
-          to { transform: translateY(100vh); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 0.9; }
-          50% { opacity: 0.8; }
-        }
-      `}</style>
     </div>
   );
 };
