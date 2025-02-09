@@ -1,7 +1,6 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { useOnchainKit } from '@coinbase/onchainkit';
 import {
   Send,
   Bot,
@@ -10,15 +9,9 @@ import {
   Mic,
   MicOff,
   Shield,
-  Activity,
   Cpu,
-  Hexagon,
-  Database,
-  Power,
-  Globe,
   VolumeX,
   Volume2,
-  Command,
   Network,
   Radio,
   Zap,
@@ -38,10 +31,10 @@ const AIBot = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
-  const chatContainerRef = useRef(null);
-  const inputRef = useRef(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const recognition = useRef(null);
+  const recognition = useRef<SpeechRecognition | null>(null);
   const speechSynthesis = typeof window !== 'undefined' ? window.speechSynthesis : null;
 
   useEffect(() => {
@@ -53,14 +46,13 @@ const AIBot = () => {
     const adjustHeight = () => {
       if (chatContainerRef.current) {
         const container = chatContainerRef.current;
-        const scrollHeight = container.scrollHeight;
-        container.style.height = `calc(100vh - ${inputRef.current?.offsetHeight + 320}px)`;
+        container.style.height = `calc(100vh - ${(inputRef.current?.offsetHeight || 0) + 320}px)`;
       }
     };
 
     adjustHeight();
-    window.addEventListener('resize', adjustHeight);
-    return () => window.removeEventListener('resize', adjustHeight);
+    window.addEventListener("resize", adjustHeight);
+    return () => window.removeEventListener("resize", adjustHeight);
   }, [messages]);
 
   // Auto scroll to bottom when new messages arrive
@@ -88,7 +80,7 @@ const AIBot = () => {
     }
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     if (!input.trim()) return;
 
@@ -131,7 +123,7 @@ const AIBot = () => {
     }
   };
 
-  const speakResponse = (text) => {
+  const speakResponse = (text: string | undefined) => {
     if (speechSynthesis && !isMuted) {
       speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
@@ -183,7 +175,7 @@ const AIBot = () => {
             ))}
           </div>
           <div className="text-cyan-400 text-6xl font-mono animate-pulse relative z-10 p-8">
-            NEXUS-7
+            Ware AI
           </div>
         </div>
       </div>
@@ -192,12 +184,10 @@ const AIBot = () => {
 
   return (
     <div className="fixed inset-0 bg-[#080C24] font-mono overflow-hidden perspective-1000">
-      {/* Enhanced Background Effects */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#00f2fe_0%,transparent_70%)]" />
         <div className="absolute inset-0 bg-grid-pattern opacity-10" />
 
-        {/* Floating Hexagons */}
         {[...Array(10)].map((_, i) => (
           <div
             key={i}
@@ -213,16 +203,16 @@ const AIBot = () => {
       </div>
 
       <div className="relative h-full max-w-7xl mx-auto p-4">
-        {/* Enhanced Header */}
         <div className="flex justify-between items-center mb-6 transform hover:scale-102 transition-transform">
           <div className="relative">
             <div className="text-cyan-400 text-xl font-bold">
-              NEXUS-7 QUANTUM INTERFACE
+              Ware AI
               <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-cyan-500 to-transparent" />
             </div>
           </div>
+          {isConnected}
           <button
-            onClick={isConnected ? disconnect : handleConnect}
+            onClick={isConnected ? () => disconnect() : handleConnect}
             className="relative group px-6 py-3 rounded-xl bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition-all overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 transform -skew-x-12 group-hover:skew-x-12 transition-transform" />
@@ -233,7 +223,6 @@ const AIBot = () => {
           </button>
         </div>
 
-        {/* Enhanced System Status Dashboard */}
         <div className="grid grid-cols-5 gap-4 mb-6">
           {[
             { label: 'QUANTUM CORE', value: '99%', icon: Cpu, color: 'cyan' },
@@ -260,13 +249,10 @@ const AIBot = () => {
           ))}
         </div>
 
-        {/* Enhanced Main Chat Interface */}
         <div className="relative transform perspective-1000">
-          {/* 3D Frame Effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-3xl transform -translate-y-1 translate-x-1 blur-md" />
 
           <div className="relative bg-gray-900/40 rounded-3xl border border-cyan-500/30 backdrop-blur-md overflow-hidden">
-            {/* Chat Container with Fixed Height */}
             <div
               ref={chatContainerRef}
               className="min-h-[calc(100vh-18rem)] overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent"
@@ -300,7 +286,6 @@ const AIBot = () => {
               ))}
             </div>
 
-            {/* Enhanced Input Area */}
             <div ref={inputRef} className="sticky bottom-0 p-4 bg-gray-900/90 border-t border-cyan-500/30">
               <form onSubmit={handleSubmit} className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-cyan-500/20 rounded-xl blur animate-pulse" />
