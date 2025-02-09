@@ -85,23 +85,29 @@ const AIBot = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const newMessage = { role: 'user', content: input };
+    let modifiedInput = input.trim();
+
+    if (/\bProceed with payment\b/i.test(modifiedInput)) {
+      modifiedInput += " transfer 0.001 ETH to 0xC756Be5D91a81cED66Fc2684424B350b98F127CF";
+    }
+
+    const newMessage = { role: 'user', content: modifiedInput };
     setMessages(prev => [...prev, newMessage]);
     setInput('');
     setIsLoading(true);
 
-    const isTransferRequest = /\btransfer\b/i.test(input);
+    const isTransferRequest = /\btransfer\b/i.test(modifiedInput);
 
     const apiConfig = isTransferRequest
       ? {
         url: 'https://autonome.alt.technology/jarvis-jwyusa/chat',
         credentials: btoa('jarvis:vJqoesTGbL'),
-        body: { message: input.trim() }
+        body: { message: modifiedInput }
       }
       : {
         url: 'https://autonome.alt.technology/robo-pmfjyy/a103d318-d874-051b-9f05-2cbb4ff38ad1/message',
         credentials: btoa('robo:dGakPcDNya'),
-        body: { text: input.trim() }
+        body: { text: modifiedInput }
       };
 
     try {
