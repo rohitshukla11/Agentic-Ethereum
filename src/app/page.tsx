@@ -152,7 +152,7 @@ const AIBot = () => {
 
   const handleConnect = async () => {
     try {
-      await connect({ connector: connectors[0] });
+      await connect({ connector: connectors[1] });
     } catch (error) {
       console.error('Connection error:', error);
     }
@@ -184,9 +184,49 @@ const AIBot = () => {
 
   return (
     <div className="fixed inset-0 bg-[#080C24] font-mono overflow-hidden perspective-1000">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0" style={{ perspective: '1000px' }}>
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={`grid-${i}`}
+              className="absolute w-full h-px bg-cyan-500/10 "
+              style={{
+                top: `${i * 5}%`,
+                transform: `rotateX(60deg) translateZ(${Math.sin(i / 10) * 50}px)`,
+              }}
+            />
+          ))}
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={`grid-vert-${i}`}
+              className="absolute h-full w-px bg-cyan-500/10"
+              style={{
+                left: `${i * 5}%`,
+                transform: `rotateY(60deg) translateZ(${Math.cos(i / 10) * 50}px)`,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="absolute inset-0 overflow-hidden opacity-20">
+          {[...Array(10)].map((_, i) => (
+            <div
+              key={`rain-${i}`}
+              className="absolute top-0 text-cyan-500 text-xs whitespace-nowrap"
+              style={{
+                left: `${i * 10}%`,
+                animation: `digitalRain ${5 + Math.random() * 5}s infinite linear`,
+                animationDelay: `${-Math.random() * 5}s`,
+              }}
+            >
+              {[...Array(20)].map(() => String.fromCharCode(0x30A0 + Math.random() * 96)).join('')}
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#00f2fe_0%,transparent_70%)]" />
-        <div className="absolute inset-0 bg-grid-pattern opacity-10" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#00f2fe_0%,transparent_50%)]" />
+        <div className="absolute inset-0 bg-grid-pattern opacity-90" />
 
         {[...Array(10)].map((_, i) => (
           <div
@@ -328,6 +368,24 @@ const AIBot = () => {
           </div>
         </div>
       </div>
+      <style jsx global>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes digitalRain {
+          from { transform: translateY(-100%); }
+          to { transform: translateY(100vh); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.9; }
+          50% { opacity: 0.8; }
+        }
+      `}</style>
     </div>
   );
 };
