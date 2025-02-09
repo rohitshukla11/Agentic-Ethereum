@@ -25,7 +25,7 @@ const AIBot = () => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Ware AI ONLINE. AWAITING YOUR COMMAND.' }
+    { role: 'assistant', content: 'Ware AI ONLINE. We currently have 100 iPhone 16s, 80 AirPods, 65 AirPods Pro, 100 MacBooks, and 100 MacBook Airs in stock. What would you like to do today?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -81,7 +81,7 @@ const AIBot = () => {
     }
   }, []);
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     if (!input.trim()) return;
 
@@ -90,22 +90,37 @@ const AIBot = () => {
     setInput('');
     setIsLoading(true);
 
+    const isTransferRequest = /\btransfer\b/i.test(input);
+
+    const apiConfig = isTransferRequest
+      ? {
+        url: 'https://autonome.alt.technology/jarvis-jwyusa/chat',
+        credentials: btoa('jarvis:vJqoesTGbL'),
+        body: { message: input.trim() }
+      }
+      : {
+        url: 'https://autonome.alt.technology/robo-pmfjyy/a103d318-d874-051b-9f05-2cbb4ff38ad1/message',
+        credentials: btoa('robo:dGakPcDNya'),
+        body: { text: input.trim() }
+      };
+
     try {
-      const response = await fetch('https://autonome.alt.technology/jarvis-jwyusa/chat', {
+      const response = await fetch(apiConfig.url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Basic ' + btoa(`jarvis:vJqoesTGbL`)
+          'Authorization': 'Basic ' + apiConfig.credentials
         },
-        body: JSON.stringify({ message: input.trim() })
+        body: JSON.stringify(apiConfig.body)
       });
 
       if (!response.ok) throw new Error('API call failed');
 
       const data = await response.json();
+      const aiResponseContent = isTransferRequest ? data.response : data[0]?.text;
       const aiResponse = {
         role: 'assistant',
-        content: data.response || 'I apologize, but I was unable to process your request.'
+        content: aiResponseContent || 'I apologize, but I was unable to process your request.'
       };
 
       setMessages(prev => [...prev, aiResponse]);
@@ -263,11 +278,11 @@ const AIBot = () => {
         {/* Status indicators with animated borders */}
         <div className="grid grid-cols-5 gap-4 mb-6">
           {[
-            { label: 'iPhone 16', value: '99%', icon: Cpu },
-            { label: 'AirPods', value: '85%', icon: Network },
-            { label: 'MacBook Air', value: '92%', icon: Radio },
-            { label: 'MacBook Pro', value: '100%', icon: Shield },
-            { label: 'AirPods Pro', value: '95%', icon: Zap }
+            { label: 'iPhone 16', value: '100', icon: Cpu },
+            { label: 'AirPods', value: '80', icon: Network },
+            { label: 'MacBook Air', value: '100', icon: Radio },
+            { label: 'MacBook Pro', value: '100', icon: Shield },
+            { label: 'AirPods Pro', value: '65', icon: Zap }
           ].map(({ label, value, icon: Icon }) => (
             <div key={label} className="relative group perspective">
               <div className="relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 rounded-xl p-4 border border-cyan-500/30 transform transition-all hover:translate-z-10 hover:shadow-xl hover:shadow-cyan-500/20">
@@ -304,7 +319,7 @@ const AIBot = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transform -translate-x-full group-hover:translate-x-full transition-all duration-1000" />
                     <div className="flex items-start gap-3">
                       <div className={`
-                        relative w-8 h-8 rounded-full flex items-center justify-center                
+                        relative min-w-9 h-8 rounded-full flex items-center justify-center                
                         ${message.role === 'assistant' ? 'bg-cyan-500/20' : 'bg-blue-500/20'}
                       `}>
                         {message.role === 'assistant' ? (
@@ -328,7 +343,7 @@ const AIBot = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="INITIATE QUANTUM COMMAND SEQUENCE..."
+                  placeholder="Activating System Commands..."
                   className="w-full bg-gray-800/50 text-cyan-400 rounded-xl px-6 py-4 pr-36 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transform transition-all"
                 />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
